@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="theme-color" content="#0F6E56"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Kontrakan"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <link rel="icon" type="image/png" href="icons/icon-192.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <title>Kontrakan Manager</title>
+  <style>
+    :root{--p:#0F6E56;--pd:#085041;--pl:#E1F5EE;--pm:#1D9E75;--a:#BA7517;--al:#FAEEDA;--ad:#633806;--r:#E24B4A;--rl:#FCEBEB;--rd:#791F1F;--b:#378ADD;--bl:#E6F1FB;--bd:#0C447C;--wg:#25D366;--wd:#128C7E;--t:#1A2E28;--tm:#5A7A70;--tl:#8FA89E;--bg:#F0F5F3;--card:#fff;--bdr:rgba(0,0,0,0.08);--ss:0 1px 4px rgba(0,0,0,.06);--sm:0 4px 16px rgba(0,0,0,.10);--sl:0 8px 32px rgba(0,0,0,.14);--rsm:8px;--rmd:12px;--rlg:18px;--rxl:24px;--font:'Plus Jakarta Sans',sans-serif;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}
+    @media(prefers-color-scheme:dark){:root{--p:#1D9E75;--pd:#0F6E56;--pl:#0A2A20;--t:#E8F4F0;--tm:#7DAAA0;--tl:#4A7A6E;--bg:#0D1A16;--card:#162320;--bdr:rgba(255,255,255,0.08);--al:#2A1E08;--rl:#2A0E0E;--bl:#0C1E30}}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--t);font-size:15px}
+    #app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+    /* TOPBAR */
+    .topbar{background:var(--pd);padding:calc(var(--st) + 12px) 20px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .topbar h1{font-size:19px;font-weight:700;color:#fff;letter-spacing:-.3px}
+    .topbar p{font-size:12px;color:rgba(255,255,255,.65);margin-top:1px}
+    .topbar-right{display:flex;gap:8px}
+    .icon-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .icon-btn svg{width:20px;height:20px;stroke-width:2.2}
+    .icon-btn:active{background:rgba(255,255,255,.25)}
+    /* STATS */
+    .stat-strip{background:var(--p);padding:0 16px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex-shrink:0}
+    .stat-chip{background:rgba(255,255,255,.12);border-radius:var(--rmd);padding:10px 8px;text-align:center;cursor:pointer}
+    .stat-chip:active{background:rgba(255,255,255,.22)}
+    .stat-chip .val{font-size:24px;font-weight:700;color:#fff;line-height:1}
+    .stat-chip .lbl{font-size:11px;color:rgba(255,255,255,.7);margin-top:4px}
+    .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;margin-bottom:1px}
+    /* TABS */
+    .nav-tabs{display:flex;background:var(--card);border-bottom:1px solid var(--bdr);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+    .nav-tabs::-webkit-scrollbar{display:none}
+    .nav-tab{flex:1;padding:10px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tl);cursor:pointer;border:none;background:transparent;border-bottom:2.5px solid transparent;transition:all .15s;white-space:nowrap;position:relative;font-family:var(--font)}
+    .nav-tab svg{width:20px;height:20px;stroke-width:2}
+    .nav-tab.active{color:var(--p);border-bottom-color:var(--p)}
+    .nav-tab .bdot{position:absolute;top:8px;right:calc(50% - 14px);width:7px;height:7px;border-radius:50%;background:var(--r);border:1.5px solid var(--card)}
+    /* PAGES */
+    .pages{flex:1;overflow:hidden;position:relative}
+    .page{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px calc(var(--sb) + 80px);display:none;background:var(--bg)}
+    .page.active{display:block}
+    .sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tl);margin:20px 0 10px}
+    .sec-title:first-child{margin-top:4px}
+    /* BADGE */
+    .badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.3px}
+    .bg{background:var(--pl);color:var(--pd)}
+    .ba{background:var(--al);color:var(--ad)}
+    .br{background:var(--rl);color:var(--rd)}
+    .bb{background:var(--bl);color:var(--bd)}
+    /* UNIT CARD */
+    .unit-card{background:var(--card);border-radius:var(--rlg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--ss);cursor:pointer;border:1px solid var(--bdr);position:relative;overflow:hidden;animation:fadeIn .25s ease both}
+    .unit-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+    .unit-card.occupied::before{background:var(--pm)}
+    .unit-card.vacant::before{background:var(--a)}
+    .unit-card.complaint::before{background:var(--r)}
+    .unit-card:active{transform:scale(.98)}
+    .unit-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+    .unit-name{font-size:16px;font-weight:700}
+    .unit-since{font-size:11px;color:var(--tl);margin-top:2px}
+    .unit-info{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .info-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tm)}
+    .info-item svg{width:14px;height:14px;flex-shrink:0;stroke:var(--tl)}
+    .info-item strong{color:var(--t);font-weight:600}
+    .unit-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)}
+    .uab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:var(--rsm);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--bg);color:var(--t);font-family:var(--font)}
+    .uab svg{width:15px;height:15px;stroke-width:2.2}
+    .uab.wa{background:#E8FBF0;color:#0A5F38;border-color:rgba(37,211,102,.25)}
+    .uab:active{transform:scale(.97)}
+    /* PAYMENT */
+    .month-header{background:var(--card);border-radius:var(--rlg);padding:16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--ss)}
+    .month-total{font-size:22px;font-weight:700;color:var(--p)}
+    .month-sub{font-size:11px;color:var(--tl);margin-top:2px}
+    .pbar{background:#eee;border-radius:4px;height:6px;margin-top:10px;overflow:hidden;width:180px}
+    .pfill{height:100%;border-radius:4px;background:var(--pm);transition:width .6s}
+    .pay-item{background:var(--card);border-radius:var(--rmd);padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--ss);border:1px solid var(--bdr);cursor:pointer;animation:fadeIn .25s ease both}
+    .pay-item:active{transform:scale(.98)}
+    .avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+    .avG{background:var(--pl);color:var(--pd)}
+    .avA{background:var(--al);color:var(--ad)}
+    .pay-info{flex:1;min-width:0}
+    .pay-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pay-sub{font-size:11px;color:var(--tl);margin-top:2px}
+    .pay-right{text-align:right;flex-shrink:0}
+    .pay-amt{font-size:13px;font-weight:700}
+    .pay-amt.paid{color:var(--p)}
+    .pay-amt.unpaid{color:var(--a)}
+    .wa-q{width:36px;height:36px;border-radius:50%;background:#E8FBF0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .wa-q:active{background:#C5F5DB}
+    .wa-q svg{width:18px;height:18px}
+    /* COMPLAINT */
+    .comp-card{background:var(--card);border-radius:var(--rlg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--ss);border:1px solid var(--bdr);animation:fadeIn .25s ease both}
+    .comp-card.high{border-top:3px solid var(--r)}
+    .comp-card.medium{border-top:3px solid var(--a)}
+    .comp-card.low{border-top:3px solid var(--b)}
+    .comp-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+    .comp-unit{font-size:15px;font-weight:700}
+    .comp-date{font-size:11px;color:var(--tl)}
+    .comp-desc{font-size:13px;color:var(--tm);line-height:1.55;margin-bottom:12px;background:var(--bg);border-radius:var(--rsm);padding:10px;border-left:3px solid var(--bdr)}
+    .comp-foot{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--bdr);gap:8px}
+    .sp{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
+    .sp .sd{width:6px;height:6px;border-radius:50%}
+    .sp-p{background:var(--rl);color:var(--rd)}
+    .sp-p .sd{background:var(--r)}
+    .sp-i{background:var(--al);color:var(--ad)}
+    .sp-i .sd{background:var(--a)}
+    .sp-d{background:var(--pl);color:var(--pd)}
+    .sp-d .sd{background:var(--pm)}
+    .ca{display:flex;gap:6px}
+    .sb{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--rsm);font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--bg);color:var(--t);font-family:var(--font)}
+    .sb.wa-btn{background:#E8FBF0;color:#0A5F38;border-color:rgba(37,211,102,.25)}
+    .sb:active{transform:scale(.97)}
+    /* REPORT */
+    .rep-sum{background:var(--p);border-radius:var(--rlg);padding:20px;color:#fff;margin-bottom:14px}
+    .rep-sum .rv{font-size:30px;font-weight:700;margin:4px 0 2px;letter-spacing:-.5px}
+    .rep-sum .rs{font-size:12px;opacity:.65}
+    .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .rep-mini{background:rgba(255,255,255,.12);border-radius:var(--rmd);padding:12px;text-align:center}
+    .rep-mini .rmv{font-size:22px;font-weight:700;color:#fff}
+    .rep-mini .rml{font-size:11px;opacity:.7;margin-top:2px}
+    .rep-card{background:var(--card);border-radius:var(--rlg);padding:16px;margin-bottom:10px;box-shadow:var(--ss);border:1px solid var(--bdr)}
+    .rep-card-title{font-size:13px;font-weight:700;margin-bottom:14px}
+    .rep-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px}
+    .bt{background:#eee;border-radius:4px;height:8px;margin-top:5px;overflow:hidden}
+    .bv{height:100%;border-radius:4px}
+    .wa-share{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;background:#25D366;color:#fff;border:none;border-radius:var(--rmd);font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:8px}
+    .wa-share:active{background:#128C7E}
+    .wa-share svg{width:22px;height:22px}
+    /* CONTACTS */
+    .search-bar{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:var(--rmd);padding:10px 14px;margin-bottom:14px;border:1px solid var(--bdr)}
+    .search-bar svg{width:18px;height:18px;stroke:var(--tl);flex-shrink:0}
+    .search-bar input{flex:1;border:none;background:transparent;font-size:14px;color:var(--t);font-family:var(--font);outline:none}
+    .search-bar input::placeholder{color:var(--tl)}
+    .filter-chips{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+    .filter-chips::-webkit-scrollbar{display:none}
+    .fc{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--bdr);background:var(--card);color:var(--tm);white-space:nowrap;font-family:var(--font)}
+    .fc.active{background:var(--p);color:#fff;border-color:var(--p)}
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal-sheet{background:var(--card);border-radius:var(--rxl) var(--rxl) 0 0;width:100%;padding:0 0 calc(var(--sb) + 16px);max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.2,.64,1)}
+    .modal-overlay.open .modal-sheet{transform:translateY(0)}
+    .modal-handle{width:36px;height:4px;border-radius:2px;background:#ccc;margin:12px auto 4px}
+    .modal-title{font-size:18px;font-weight:700;padding:12px 20px 16px;border-bottom:1px solid var(--bdr)}
+    .form-body{padding:16px 20px}
+    .form-group{margin-bottom:16px}
+    .form-label{font-size:12px;font-weight:600;color:var(--tm);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+    .fi,.fs,.ft{width:100%;padding:12px 14px;border:1.5px solid var(--bdr);border-radius:var(--rmd);font-size:15px;font-family:var(--font);background:var(--bg);color:var(--t);outline:none;appearance:none;-webkit-appearance:none}
+    .fi:focus,.fs:focus,.ft:focus{border-color:var(--p)}
+    .ft{min-height:90px;resize:none;line-height:1.5}
+    .fs{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238FA89E' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn-primary{width:100%;padding:14px;background:var(--p);color:#fff;border:none;border-radius:var(--rmd);font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:8px}
+    .btn-primary:active{background:var(--pd)}
+    /* DETAIL SHEET */
+    .det-sheet{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+    .det-sheet.open{transform:translateX(0)}
+    .det-hdr{background:var(--pd);padding:calc(var(--st) + 14px) 20px 18px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+    .back-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .back-btn svg{width:20px;height:20px;stroke-width:2.5}
+    .back-btn:active{background:rgba(255,255,255,.25)}
+    .det-body{flex:1;overflow-y:auto;padding:16px 16px calc(var(--sb) + 24px)}
+    .det-sec{background:var(--card);border-radius:var(--rlg);padding:14px 16px;margin-bottom:12px;box-shadow:var(--ss);border:1px solid var(--bdr)}
+    .det-sec-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--tl);margin-bottom:12px}
+    .det-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bdr);font-size:14px}
+    .det-row:last-child{border-bottom:none;padding-bottom:0}
+    .det-row .dl{color:var(--tm)}
+    .det-row .dv{font-weight:600;text-align:right}
+    .wa-big{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;background:#25D366;color:#fff;border:none;border-radius:var(--rlg);font-size:16px;font-weight:700;font-family:var(--font);cursor:pointer;margin-bottom:10px}
+    .wa-big:active{background:#128C7E}
+    .wa-big svg{width:24px;height:24px;flex-shrink:0}
+    .act-row{display:flex;gap:10px;margin-bottom:10px}
+    .act-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:var(--rmd);font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--bdr);background:var(--card);color:var(--t);font-family:var(--font)}
+    .act-btn svg{width:18px;height:18px;stroke-width:2}
+    .act-btn:active{transform:scale(.97)}
+    /* LOADING */
+    .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:16px;color:var(--tl)}
+    .spinner{width:36px;height:36px;border:3px solid var(--bdr);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* TOAST */
+    .toast{position:fixed;bottom:calc(var(--sb) + 80px);left:50%;transform:translateX(-50%) translateY(20px);background:#1A2E28;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:200;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    /* FAB */
+    .fab{position:fixed;bottom:calc(var(--sb) + 72px);right:20px;width:54px;height:54px;background:var(--p);color:#fff;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sl);z-index:20}
+    .fab svg{width:26px;height:26px;stroke-width:2.5}
+    .fab:active{transform:scale(.93);background:var(--pd)}
+    .fab.hidden{display:none}
+    /* EMPTY */
+    .empty{text-align:center;padding:40px 20px;color:var(--tl)}
+    .empty svg{width:48px;height:48px;margin-bottom:12px;stroke:#ccc}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .det-sec{animation:fadeIn .2s ease both}
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div>
+      <h1>🏘 Kontrakan Saya</h1>
+      <p id="topbar-sub">Memuat data...</p>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button>
+      <button class="icon-btn" onclick="toast('Notifikasi aktif ✅')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+    </div>
+  </div>
+  <div class="stat-strip">
+    <div class="stat-chip" onclick="filterUnits('occupied')"><div class="val" id="s-occ">–</div><div class="lbl"><span class="dot" style="background:#5DCAA5"></span>Terisi</div></div>
+    <div class="stat-chip" onclick="filterUnits('vacant')"><div class="val" id="s-vac">–</div><div class="lbl"><span class="dot" style="background:#FAC775"></span>Kosong</div></div>
+    <div class="stat-chip" onclick="switchTab('complaint')"><div class="val" id="s-comp">–</div><div class="lbl"><span class="dot" style="background:#F09595"></span>Keluhan</div></div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-unit" onclick="switchTab('unit')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Unit</button>
+    <button class="nav-tab" id="tab-payment" onclick="switchTab('payment')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Bayar</button>
+    <button class="nav-tab" id="tab-complaint" onclick="switchTab('complaint')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Keluhan<span class="bdot" id="cdot" style="display:none"></span></button>
+    <button class="nav-tab" id="tab-report" onclick="switchTab('report')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Laporan</button>
+    <button class="nav-tab" id="tab-contacts" onclick="switchTab('contacts')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Kontak</button>
+  </div>
+  <div class="pages">
+    <div class="page active" id="page-unit">
+      <div class="filter-chips" id="unit-fc">
+        <button class="fc active" onclick="filterUnits('all',this)">Semua</button>
+        <button class="fc" onclick="filterUnits('occupied',this)">Terisi</button>
+        <button class="fc" onclick="filterUnits('vacant',this)">Kosong</button>
+        <button class="fc" onclick="filterUnits('complaint',this)">Keluhan</button>
+        <button class="fc" onclick="filterUnits('unpaid',this)">Menunggak</button>
+      </div>
+      <div id="unit-list"><div class="loading"><div class="spinner"></div><span>Memuat unit...</span></div></div>
+    </div>
+    <div class="page" id="page-payment">
+      <div class="month-header">
+        <div><div style="font-size:13px;color:var(--tm)">Pendapatan Bulan Ini</div><div class="month-total" id="total-income">Rp –</div><div class="month-sub" id="income-sub">Memuat...</div><div class="pbar"><div class="pfill" id="income-bar" style="width:0%"></div></div></div>
+        <div style="text-align:right"><div style="font-size:11px;color:var(--tm)">Bulan</div><div style="font-size:16px;font-weight:700" id="cur-month"></div><div style="font-size:11px;color:var(--tl)" id="cur-year"></div></div>
+      </div>
+      <div class="sec-title">Status Pembayaran</div>
+      <div id="payment-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+    <div class="page" id="page-complaint">
+      <div class="filter-chips" id="comp-fc">
+        <button class="fc active" onclick="filterComplaints('all',this)">Semua</button>
+        <button class="fc" onclick="filterComplaints('pending',this)">Menunggu</button>
+        <button class="fc" onclick="filterComplaints('in-progress',this)">Diproses</button>
+        <button class="fc" onclick="filterComplaints('done',this)">Selesai</button>
+        <button class="fc" onclick="filterComplaints('high',this)">Prioritas Tinggi</button>
+      </div>
+      <div id="comp-list"><div class="loading"><div class="spinner"></div></div></div>
+      <div id="comp-empty" class="empty" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p>Tidak ada keluhan aktif!</p></div>
+    </div>
+    <div class="page" id="page-report">
+      <div id="rep-content"><div class="loading"><div class="spinner"></div><span>Memuat laporan...</span></div></div>
+    </div>
+    <div class="page" id="page-contacts">
+      <div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Cari nama penyewa..." id="contact-search" oninput="renderContacts(this.value)"/></div>
+      <div id="contacts-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+  <button class="fab" id="fab-btn" onclick="openFab()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+</div>
+
+<!-- UNIT DETAIL -->
+<div class="det-sheet" id="unit-det">
+  <div class="det-hdr">
+    <button class="back-btn" onclick="closeDet('unit-det')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div><h2 style="font-size:19px;font-weight:700;color:#fff" id="det-title">Unit</h2><p style="font-size:12px;color:rgba(255,255,255,.65);margin-top:2px" id="det-sub">Detail</p></div>
+  </div>
+  <div class="det-body" id="det-body"></div>
+</div>
+
+<!-- MODAL UNIT -->
+<div class="modal-overlay" id="m-unit" onclick="closeModal('m-unit')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="m-unit-title">Edit Unit</div>
+    <div class="form-body">
+      <input type="hidden" id="f-uid"/>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">No. Unit</label><input class="fi" id="f-uno" type="number" min="1" max="9" placeholder="1–9"/></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="fs" id="f-ust"><option value="occupied">Terisi</option><option value="vacant">Kosong</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Nama Penyewa</label><input class="fi" id="f-tn" type="text" placeholder="Nama lengkap"/></div>
+      <div class="form-group"><label class="form-label">No. WhatsApp (628xxx)</label><input class="fi" id="f-wa" type="tel" placeholder="6281234567890"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Mulai Sewa</label><input class="fi" id="f-since" type="month"/></div>
+        <div class="form-group"><label class="form-label">Tarif/Bulan (Rp)</label><input class="fi" id="f-rent" type="number" placeholder="1500000"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Status Bayar Bulan Ini</label><select class="fs" id="f-paid"><option value="true">Sudah Lunas</option><option value="false">Belum Bayar</option></select></div>
+      <button class="btn-primary" onclick="saveUnit()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPLAINT -->
+<div class="modal-overlay" id="m-comp" onclick="closeModal('m-comp')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Catat Keluhan Baru</div>
+    <div class="form-body">
+      <div class="form-group"><label class="form-label">Pilih Unit</label><select class="fs" id="f-cunit"></select></div>
+      <div class="form-group"><label class="form-label">Deskripsi Keluhan</label><textarea class="ft" id="f-cdesc" placeholder="Jelaskan kerusakan atau masalah..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Prioritas</label><select class="fs" id="f-cpri"><option value="high">🔴 Tinggi</option><option value="medium" selected>🟡 Sedang</option><option value="low">🔵 Rendah</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="fs" id="f-cst"><option value="pending">Menunggu</option><option value="in-progress">Diproses</option><option value="done">Selesai</option></select></div>
+      </div>
+      <button class="btn-primary" onclick="saveComplaint()">⚠️ Simpan Keluhan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ============ STATE ============
+const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+let appData = { units:[], complaints:[], settings:{} };
+let unitFilter = 'all', compFilter = 'all', currentTab = 'unit';
+
+// ============ API ============
+const API = {
+  async get(path){ const r=await fetch(path); return r.json() },
+  async put(path,body){ const r=await fetch(path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json() },
+  async patch(path,body={}){ const r=await fetch(path,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json() },
+  async post(path,body){ const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json() }
+};
+
+async function loadAll(){
+  try {
+    const res = await API.get('/api/dashboard');
+    if(res.success){
+      appData.units      = res.data.units;
+      appData.complaints = res.data.complaints;
+      appData.settings   = res.data.settings;
+      updateStats(res.data.summary);
+      renderUnits(); renderPayments(); renderComplaints(); renderReport(); renderContacts();
+    }
+  } catch(e){ toast('Gagal memuat data: '+e.message) }
+}
+
+// ============ HELPERS ============
+function fmtRp(n){ return 'Rp '+Number(n).toLocaleString('id-ID') }
+function fmtMonth(s){ if(!s)return'—'; const d=new Date(s+'-01'); return d.toLocaleDateString('id-ID',{month:'long',year:'numeric'}) }
+function ini(n){ if(!n)return'?'; return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() }
+function getUnit(id){ return appData.units.find(u=>u.id==id) }
+function toast(msg){ const t=document.getElementById('toast-el'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500) }
+function openModal(id){ document.getElementById(id).classList.add('open') }
+function closeModal(id){ document.getElementById(id).classList.remove('open') }
+function openDet(id){ document.getElementById(id).classList.add('open') }
+function closeDet(id){ document.getElementById(id).classList.remove('open') }
+
+const WA_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>`;
+function openWA(wa,msg){ if(!wa){toast('No. WA tidak tersedia');return} window.open('https://wa.me/'+wa.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank') }
+
+// ============ STATS ============
+function updateStats(s){
+  if(!s){ const u=appData.units; const occ=u.filter(x=>x.status!=='vacant'); s={occupied:occ.length,vacant:u.filter(x=>x.status==='vacant').length,active_complaints:appData.complaints.filter(c=>c.status!=='done').length} }
+  document.getElementById('s-occ').textContent = s.occupied||0;
+  document.getElementById('s-vac').textContent = s.vacant||0;
+  document.getElementById('s-comp').textContent = s.active_complaints||0;
+  document.getElementById('topbar-sub').textContent = (appData.settings.property_name||'Kontrakan')+' · '+appData.units.length+' Unit';
+  document.getElementById('cdot').style.display = s.active_complaints>0?'block':'none';
+}
+
+// ============ UNITS ============
+function filterUnits(f,el){
+  unitFilter=f;
+  document.querySelectorAll('#unit-fc .fc').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderUnits(); if(f!=='all')switchTab('unit');
+}
+function renderUnits(){
+  let list=appData.units;
+  if(unitFilter==='occupied')list=list.filter(u=>u.status==='occupied');
+  else if(unitFilter==='vacant')list=list.filter(u=>u.status==='vacant');
+  else if(unitFilter==='complaint')list=list.filter(u=>u.status==='complaint');
+  else if(unitFilter==='unpaid')list=list.filter(u=>u.status!=='vacant'&&!u.paid);
+  const ow=appData.settings.owner_name||'Pemilik';
+  document.getElementById('unit-list').innerHTML = list.length===0?'<div class="empty"><p>Tidak ada unit yang sesuai filter</p></div>':list.map((u,i)=>{
+    const cls=u.status; const sL=cls==='occupied'?'Terisi':cls==='vacant'?'Kosong':'Keluhan'; const sCls=cls==='occupied'?'bg':cls==='vacant'?'ba':'br';
+    const payB=u.status!=='vacant'?`<span class="badge ${u.paid?'bg':'ba'}">${u.paid?'Lunas':'Menunggak'}</span>`:'';
+    const info=u.tenant?`
+      <div class="info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><strong>${u.tenant}</strong></div>
+      <div class="info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${fmtRp(u.rent)}/bln</div>
+      <div class="info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Sejak ${fmtMonth(u.since)}</div>
+      <div class="info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 4.13 15.9a2 2 0 0 1-1.07-1.69v-3a2 2 0 0 1 1.72-2A19.79 19.79 0 0 0 8.09 12"/></svg>${u.wa||'—'}</div>`:
+      `<div class="info-item" style="grid-column:span 2"><em style="color:var(--tl)">Unit kosong — belum ada penyewa</em></div>`;
+    const waMsg=u.tenant?`Halo ${u.tenant}, ada yang bisa saya bantu? — ${ow}`:'';
+    const acts=u.tenant?`
+      <button class="uab wa" onclick="event.stopPropagation();openWA('${u.wa}','${waMsg.replace(/'/g,"\\'")}');toast('Membuka WhatsApp...')">${WA_SVG} WhatsApp</button>
+      <button class="uab" onclick="event.stopPropagation();editUnit(${u.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>`:
+      `<button class="uab" onclick="event.stopPropagation();addForSlot(${u.id})" style="flex:1;background:var(--pl);color:var(--pd);border-color:var(--pl)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Tambah Penyewa</button>`;
+    return`<div class="unit-card ${cls}" onclick="openUnitDet(${u.id})" style="animation-delay:${i*.04}s">
+      <div class="unit-top"><div><div class="unit-name">🚪 Unit ${u.id}</div><div class="unit-since">${u.since?'Sejak '+fmtMonth(u.since):'—'}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="badge ${sCls}">${sL}</span>${payB}</div></div>
+      <div class="unit-info">${info}</div><div class="unit-actions">${acts}</div></div>`;
+  }).join('');
+}
+
+async function openUnitDet(id){
+  const u=getUnit(id); if(!u) return;
+  document.getElementById('det-title').textContent='Unit '+u.id;
+  document.getElementById('det-sub').textContent=u.tenant||'Unit Kosong';
+  const ow=appData.settings.owner_name||'Pemilik';
+  const comps=appData.complaints.filter(c=>c.unit_id==id);
+  const sL=u.status==='occupied'?'Terisi':u.status==='vacant'?'Kosong':'Ada Keluhan';
+  const waH=u.tenant?`Halo ${u.tenant}, ada yang bisa saya bantu? — ${ow}`:'';
+  const waT=u.tenant?`Halo ${u.tenant}, ini pengingat pembayaran sewa Unit ${u.id} sebesar ${fmtRp(u.rent)} bulan ini. Mohon segera dibayarkan ya. Terima kasih 🙏 — ${ow}`:'';
+  const waK=u.tenant?`Halo ${u.tenant}, terkait keluhan Anda, kami akan segera menindaklanjuti. Terima kasih 🙏 — ${ow}`:'';
+  document.getElementById('det-body').innerHTML=`
+    ${u.tenant?`<button class="wa-big" onclick="openWA('${u.wa}','${waH.replace(/'/g,"\\'")}');toast('Membuka WhatsApp...')">${WA_SVG} Chat WhatsApp — ${u.tenant}</button>`:''}
+    <div class="det-sec">
+      <div class="det-sec-t">Info Unit</div>
+      <div class="det-row"><span class="dl">Nomor Unit</span><span class="dv">Unit ${u.id}</span></div>
+      <div class="det-row"><span class="dl">Status</span><span class="dv">${sL}</span></div>
+      <div class="det-row"><span class="dl">Penyewa</span><span class="dv">${u.tenant||'—'}</span></div>
+      <div class="det-row"><span class="dl">No. WhatsApp</span><span class="dv" style="color:var(--wd)">${u.wa||'—'}</span></div>
+      <div class="det-row"><span class="dl">Mulai Sewa</span><span class="dv">${fmtMonth(u.since)}</span></div>
+      <div class="det-row"><span class="dl">Tarif/Bulan</span><span class="dv">${fmtRp(u.rent)}</span></div>
+      <div class="det-row"><span class="dl">Status Bayar</span><span class="dv" style="color:${u.paid?'var(--p)':'var(--a)'}">${u.status==='vacant'?'—':u.paid?'✅ Lunas':'⏳ Menunggak'}</span></div>
+    </div>
+    ${comps.length>0?`<div class="det-sec" style="border-left:3px solid var(--r)"><div class="det-sec-t" style="color:var(--r)">⚠️ Keluhan Aktif (${comps.length})</div>${comps.map(c=>`<div style="padding:8px 0;border-bottom:1px solid var(--bdr)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">${c.description}</div><div style="font-size:11px;color:var(--tl)">${c.date} · ${c.category}</div></div>`).join('')}</div>`:''}
+    ${u.tenant?`
+    <div class="act-row">
+      <button class="act-btn" onclick="togglePaid(${u.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>${u.paid?'Tandai Menunggak':'Tandai Lunas'}</button>
+      <button class="act-btn" style="color:var(--wd)" onclick="openWA('${u.wa}','${waT.replace(/'/g,"\\'")}');toast('Pesan tagihan siap...')">${WA_SVG} Tagih WA</button>
+    </div>
+    ${comps.length>0?`<button class="act-btn" style="width:100%;margin-bottom:10px" onclick="openWA('${u.wa}','${waK.replace(/'/g,"\\'")}');toast('Membuka WhatsApp...')">${WA_SVG} Balas Keluhan via WA</button>`:''}
+    <button class="act-btn" style="width:100%;margin-bottom:10px" onclick="editUnit(${u.id});closeDet('unit-det')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Data Unit</button>`:`
+    <button class="act-btn" onclick="addForSlot(${u.id});closeDet('unit-det')" style="width:100%;background:var(--pl);color:var(--pd);border-color:var(--pl)">+ Tambah Penyewa Baru</button>`}`;
+  openDet('unit-det');
+}
+
+async function togglePaid(id){
+  const res=await API.patch('/api/units/'+id+'/paid');
+  if(res.success){ const u=getUnit(id); if(u){u.paid=res.data.paid;} renderUnits();renderPayments();renderReport();openUnitDet(id);toast(res.data.paid?'✅ Lunas':'⏳ Menunggak') }
+}
+
+// ============ PAYMENTS ============
+function renderPayments(){
+  const now=new Date();
+  document.getElementById('cur-month').textContent=MONTHS[now.getMonth()];
+  document.getElementById('cur-year').textContent=now.getFullYear();
+  const occ=appData.units.filter(u=>u.status!=='vacant');
+  const paid=occ.filter(u=>u.paid).length;
+  const totalPaid=occ.filter(u=>u.paid).reduce((s,u)=>s+u.rent,0);
+  const total=occ.reduce((s,u)=>s+u.rent,0);
+  const pct=total>0?Math.round(totalPaid/total*100):0;
+  document.getElementById('total-income').textContent=fmtRp(totalPaid);
+  document.getElementById('income-sub').textContent=paid+' dari '+occ.length+' unit lunas ('+pct+'%)';
+  document.getElementById('income-bar').style.width=pct+'%';
+  const ow=appData.settings.owner_name||'Pemilik';
+  document.getElementById('payment-list').innerHTML=occ.map((u,i)=>{
+    const waMsg=`Halo ${u.tenant}, pengingat pembayaran sewa Unit ${u.id} sebesar ${fmtRp(u.rent)} bulan ${MONTHS[now.getMonth()]} ${now.getFullYear()}. Mohon segera dibayarkan. Terima kasih 🙏 — ${ow}`;
+    return`<div class="pay-item" style="animation-delay:${i*.04}s" onclick="openUnitDet(${u.id})">
+      <div class="avatar ${u.paid?'avG':'avA'}">${ini(u.tenant)}</div>
+      <div class="pay-info"><div class="pay-name">${u.tenant}</div><div class="pay-sub">Unit ${u.id} · ${MONTHS[now.getMonth()]} ${now.getFullYear()}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="pay-right"><div class="pay-amt ${u.paid?'paid':'unpaid'}">${fmtRp(u.rent)}</div><span class="badge ${u.paid?'bg':'ba'}">${u.paid?'Lunas':'Menunggak'}</span></div>
+        ${!u.paid&&u.wa?`<button class="wa-q" onclick="event.stopPropagation();openWA('${u.wa}','${waMsg.replace(/'/g,"\\'")}');toast('Membuka WhatsApp...')" title="Tagih via WA"><svg viewBox="0 0 24 24" fill="#25D366">${WA_SVG.replace('<svg viewBox="0 0 24 24" fill="currentColor" stroke="none">','').replace('</svg>','')}</svg></button>`:''}
+      </div></div>`;
+  }).join('');
+}
+
+// ============ COMPLAINTS ============
+function filterComplaints(f,el){
+  compFilter=f;
+  document.querySelectorAll('#comp-fc .fc').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderComplaints();
+}
+function renderComplaints(){
+  let list=appData.complaints;
+  if(compFilter==='pending')list=list.filter(c=>c.status==='pending');
+  else if(compFilter==='in-progress')list=list.filter(c=>c.status==='in-progress');
+  else if(compFilter==='done')list=list.filter(c=>c.status==='done');
+  else if(compFilter==='high')list=list.filter(c=>c.priority==='high');
+  const el=document.getElementById('comp-list');
+  document.getElementById('comp-empty').style.display=list.length===0?'block':'none';
+  const ow=appData.settings.owner_name||'Pemilik';
+  const sMap={pending:{cls:'sp-p',lbl:'Menunggu'},'in-progress':{cls:'sp-i',lbl:'Diproses'},done:{cls:'sp-d',lbl:'Selesai'}};
+  el.innerHTML=list.map((c,i)=>{
+    const s=sMap[c.status]||sMap.pending;
+    const pL=c.priority==='high'?'Prioritas Tinggi':c.priority==='medium'?'Prioritas Sedang':'Prioritas Rendah';
+    const pC=c.priority==='high'?'br':c.priority==='medium'?'ba':'bb';
+    const waMsg=c.wa?`Halo ${c.tenant}, terkait keluhan "${c.description}" — kami segera menangani. Terima kasih 🙏 — ${ow}`:'';
+    return`<div class="comp-card ${c.priority}" style="animation-delay:${i*.05}s">
+      <div class="comp-hdr"><div><div class="comp-unit">🚪 Unit ${c.unit_id}${c.tenant?' — '+c.tenant:''}</div><div class="comp-date">${c.date} · ${c.category}</div></div><span class="badge ${pC}">${pL}</span></div>
+      <div class="comp-desc">${c.description}</div>
+      <div class="comp-foot"><span class="sp ${s.cls}"><span class="sd"></span>${s.lbl}</span><div class="ca">${c.wa?`<button class="sb wa-btn" onclick="openWA('${c.wa}','${waMsg.replace(/'/g,"\\'")}');toast('Membuka WA...')">${WA_SVG} WA</button>`:''}<button class="sb" onclick="cycleStatus(${c.id})">Ubah Status</button></div></div>
+    </div>`;
+  }).join('');
+}
+async function cycleStatus(id){
+  const res=await API.patch('/api/complaints/'+id+'/status');
+  if(res.success){ const c=appData.complaints.find(x=>x.id==id); if(c)c.status=res.data.status; renderComplaints();updateStats();renderReport();toast({pending:'⏳ Menunggu','in-progress':'🔧 Diproses',done:'✅ Selesai'}[res.data.status]) }
+}
+
+// ============ REPORT ============
+function renderReport(){
+  const u=appData.units; const occ=u.filter(x=>x.status!=='vacant');
+  const paid=occ.filter(x=>x.paid).length; const vac=u.filter(x=>x.status==='vacant').length;
+  const totalPaid=occ.filter(x=>x.paid).reduce((s,x)=>s+x.rent,0);
+  const activeC=appData.complaints.filter(c=>c.status!=='done').length;
+  const pct=u.length>0?Math.round(occ.length/u.length*100):0;
+  const cats={};appData.complaints.forEach(c=>{cats[c.category]=(cats[c.category]||0)+1});
+  const ow=appData.settings.owner_name||'Pemilik'; const owa=appData.settings.owner_wa||'';
+  const now=new Date();
+  document.getElementById('rep-content').innerHTML=`
+    <div class="rep-sum">
+      <div style="font-size:12px;opacity:.75;font-weight:500">Total Pendapatan Bulan Ini</div>
+      <div class="rv">${fmtRp(totalPaid)}</div>
+      <div class="rs">dari ${occ.length} unit terisi · ${MONTHS[now.getMonth()]} ${now.getFullYear()}</div>
+      <div class="rep-grid">
+        <div class="rep-mini"><div class="rmv">${paid}</div><div class="rml">Unit Lunas</div></div>
+        <div class="rep-mini"><div class="rmv">${occ.length-paid}</div><div class="rml">Menunggak</div></div>
+        <div class="rep-mini"><div class="rmv">${vac}</div><div class="rml">Unit Kosong</div></div>
+        <div class="rep-mini"><div class="rmv">${activeC}</div><div class="rml">Keluhan Aktif</div></div>
+      </div>
+    </div>
+    <div class="rep-card">
+      <div class="rep-card-title">Occupancy Rate</div>
+      <div class="rep-row"><span style="color:var(--tm)">Terisi</span><span style="font-weight:700;color:var(--p)">${pct}%</span></div>
+      <div class="bt"><div class="bv" style="background:var(--pm);width:${pct}%"></div></div>
+    </div>
+    <div class="rep-card">
+      <div class="rep-card-title">Keluhan per Kategori</div>
+      ${Object.entries(cats).length>0?Object.entries(cats).map(([k,v])=>`<div class="rep-row"><span style="color:var(--tm)">${k}</span><span style="font-weight:600">${v} keluhan</span></div>`).join(''):'<div style="font-size:13px;color:var(--tl);text-align:center;padding:10px">Belum ada keluhan</div>'}
+    </div>
+    <div class="rep-card">
+      <div class="rep-card-title">Ringkasan Semua Unit</div>
+      ${u.map(x=>`<div class="det-row"><span style="color:var(--tm)">Unit ${x.id}${x.tenant?' — '+x.tenant.split(' ')[0]:''}</span><span class="badge ${x.status==='occupied'?'bg':x.status==='vacant'?'ba':'br'}" style="font-size:9px">${x.status==='occupied'?'Terisi':x.status==='vacant'?'Kosong':'Keluhan'}</span></div>`).join('')}
+    </div>
+    <button class="wa-share" onclick="shareReport()">${WA_SVG} Kirim Laporan via WhatsApp</button>`;
+}
+function shareReport(){
+  const u=appData.units;const occ=u.filter(x=>x.status!=='vacant');const paid=occ.filter(x=>x.paid).length;const total=occ.filter(x=>x.paid).reduce((s,x)=>s+x.rent,0);
+  const now=new Date();
+  const msg=`📊 *Laporan Kontrakan — ${MONTHS[now.getMonth()]} ${now.getFullYear()}*\n\n🏘 ${appData.settings.property_name||'Kontrakan'}\n📍 ${appData.settings.property_address||''}\n\n✅ Terisi: ${occ.length}/9\n💰 Lunas: ${paid} unit\n⏳ Menunggak: ${occ.length-paid} unit\n🏚 Kosong: ${u.length-occ.length} unit\n\n💵 Total: ${fmtRp(total)}\n\n_Kontrakan Manager App_`;
+  openWA(appData.settings.owner_wa,msg);
+}
+
+// ============ CONTACTS ============
+function renderContacts(search=''){
+  const list=appData.units.filter(u=>u.tenant&&(!search||u.tenant.toLowerCase().includes(search.toLowerCase())));
+  const ow=appData.settings.owner_name||'Pemilik';
+  const now=new Date();
+  const el=document.getElementById('contacts-list');
+  if(!list.length){el.innerHTML='<div class="empty"><p>Tidak ada penyewa ditemukan</p></div>';return}
+  el.innerHTML=list.map((u,i)=>{
+    const waH=`Halo ${u.tenant}, ada yang bisa saya bantu? — ${ow}`;
+    const waT=`Halo ${u.tenant}, pengingat sewa Unit ${u.id} sebesar ${fmtRp(u.rent)} bulan ${MONTHS[now.getMonth()]} ${now.getFullYear()}. Mohon segera dibayarkan. Terima kasih 🙏 — ${ow}`;
+    return`<div class="det-sec" style="margin-bottom:10px;animation-delay:${i*.05}s">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div class="avatar avG" style="width:46px;height:46px;font-size:15px;flex-shrink:0">${ini(u.tenant)}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700">${u.tenant}</div><div style="font-size:12px;color:var(--tl)">Unit ${u.id} · ${fmtRp(u.rent)}/bln</div></div>
+        <span class="badge ${u.paid?'bg':'ba'}">${u.paid?'Lunas':'Menunggak'}</span>
+      </div>
+      <div style="font-size:12px;color:var(--tm);margin-bottom:12px">📱 ${u.wa||'—'}&nbsp;·&nbsp;📅 Sejak ${fmtMonth(u.since)}</div>
+      <div style="display:flex;gap:8px">
+        <button class="uab wa" style="flex:2" onclick="openWA('${u.wa}','${waH.replace(/'/g,"\\'")}');toast('Membuka WhatsApp...')">${WA_SVG} Chat WA</button>
+        <button class="uab" style="flex:1" onclick="openWA('${u.wa}','${waT.replace(/'/g,"\\'")}');toast('Pesan tagihan siap...')">💰 Tagih</button>
+      </div></div>`;
+  }).join('');
+}
+
+// ============ NAVIGATION ============
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('fab-btn').classList.toggle('hidden',tab==='report'||tab==='contacts');
+  closeDet('unit-det');
+}
+function openSearch(){switchTab('contacts');setTimeout(()=>document.getElementById('contact-search').focus(),300)}
+
+// ============ FORMS ============
+function openFab(){ currentTab==='complaint'?openAddComp():openAddUnit() }
+
+function openAddUnit(){
+  document.getElementById('f-uid').value='';document.getElementById('m-unit-title').textContent='Tambah Penyewa';
+  ['f-uno','f-tn','f-wa','f-since'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-ust').value='occupied';document.getElementById('f-rent').value='1500000';document.getElementById('f-paid').value='false';
+  openModal('m-unit');
+}
+function addForSlot(id){ openAddUnit(); document.getElementById('f-uno').value=id }
+function editUnit(id){
+  const u=getUnit(id); if(!u)return;
+  document.getElementById('f-uid').value=id;document.getElementById('m-unit-title').textContent='Edit Unit '+id;
+  document.getElementById('f-uno').value=u.id;document.getElementById('f-ust').value=u.status;
+  document.getElementById('f-tn').value=u.tenant||'';document.getElementById('f-wa').value=u.wa||'';
+  document.getElementById('f-since').value=u.since||'';document.getElementById('f-rent').value=u.rent;
+  document.getElementById('f-paid').value=u.paid?'true':'false';
+  openModal('m-unit');
+}
+async function saveUnit(){
+  const no=parseInt(document.getElementById('f-uno').value);
+  if(!no||no<1||no>9){toast('⚠️ No. unit harus 1–9');return}
+  const body={status:document.getElementById('f-ust').value,tenant:document.getElementById('f-tn').value.trim()||null,wa:document.getElementById('f-wa').value.trim().replace(/\D/g,'')||null,since:document.getElementById('f-since').value||null,rent:parseInt(document.getElementById('f-rent').value)||1500000,paid:document.getElementById('f-paid').value==='true'};
+  const res=await API.put('/api/units/'+no,body);
+  if(res.success){const u=getUnit(no);if(u)Object.assign(u,res.data);closeModal('m-unit');updateStats();renderUnits();renderPayments();renderReport();renderContacts();toast('Unit '+no+' berhasil disimpan ✅')}
+  else toast('Error: '+res.error);
+}
+
+function openAddComp(){
+  const occ=appData.units.filter(u=>u.status!=='vacant');
+  if(!occ.length){toast('Belum ada unit terisi');return}
+  document.getElementById('f-cunit').innerHTML=occ.map(u=>`<option value="${u.id}">Unit ${u.id} — ${u.tenant}</option>`).join('');
+  document.getElementById('f-cdesc').value='';document.getElementById('f-cpri').value='medium';document.getElementById('f-cst').value='pending';
+  openModal('m-comp');
+}
+async function saveComplaint(){
+  const desc=document.getElementById('f-cdesc').value.trim();
+  if(!desc){toast('⚠️ Isi deskripsi keluhan dahulu');return}
+  const body={unit_id:parseInt(document.getElementById('f-cunit').value),priority:document.getElementById('f-cpri').value,status:document.getElementById('f-cst').value,description:desc};
+  const res=await API.post('/api/complaints',body);
+  if(res.success){closeModal('m-comp');await loadAll();toast('Keluhan berhasil dicatat ✅')}
+  else toast('Error: '+res.error);
+}
+
+// ============ INIT ============
+loadAll();
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})) }
+</script>
+</body>
+</html>
