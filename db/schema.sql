@@ -48,8 +48,7 @@ ON CONFLICT (id) DO NOTHING;
 
 -- ── Data Awal: Keluhan ──
 INSERT INTO complaints (unit_id, priority, status, description, category, date) VALUES
-  (3, 'high', 'in-progress', 'Atap bocor saat hujan deras di kamar tidur utama', 'Struktural', '2026-05-12'),
-  (7, 'high', 'pending',     'Kran air kamar mandi rusak, air tidak mengalir',   'Plumbing',   '2026-05-10')
+  (NULL, 'medium', 'pending', '', 'Lainnya', CURRENT_DATE)
 ON CONFLICT DO NOTHING;
 
 -- ── Data Awal: Pengaturan ──
@@ -59,3 +58,7 @@ INSERT INTO settings (key, value) VALUES
   ('property_name', 'Kontrakan ID'),
   ('property_address', 'Kp.Asem RT.004 RW.005 Semanan, Kalideres')
 ON CONFLICT (key) DO NOTHING;
+
+DELETE FROM complaints
+WHERE unit_id IS NULL
+  AND description = '';
