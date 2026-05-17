@@ -83,80 +83,6 @@ app.patch('/api/units/:id/paid', async (req, res) => {
 });
 
 // ======================
-// API: COMPLAINTS
-// ======================
-
-// GET /api/complaints — ambil semua keluhan
-app.get('/api/complaints', async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT c.*, u.tenant, u.wa FROM complaints c
-       LEFT JOIN units u ON c.unit_id = u.id
-       ORDER BY c.created_at DESC`
-    );
-    res.json({ success: true, data: result.rows });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// POST /api/complaints — tambah keluhan baru
-app.post('/api/complaints', async (req, res) => {
-  const { unit_id, priority, status, description, category } = req.body;
-  if (!unit_id || !description) return res.status(400).json({ success: false, error: 'unit_id dan description wajib diisi' });
-
-  // Auto-deteksi kategori
-  const catMap = { atap:'Struktural', bocor:'Struktural', plumbing:'Plumbing', kran:'Plumbing', air:'Plumbing', listrik:'Listrik', lampu:'Listrik', pintu:'Furnitur', jendela:'Furnitur', ac:'AC/Kipas', kipas:'AC/Kipas' };
-  const detectedCat = Object.entries(catMap).find(([k]) => description.toLowerCase().includes(k))?.[1] || category || 'Lainnya';
-
-  try {
-    const result = await pool.query(
-      `INSERT INTO complaints (unit_id, priority, status, description, category)
-       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-      [unit_id, priority || 'medium', status || 'pending', description, detectedCat]
-    );
-
-    // Jika prioritas tinggi → update status unit jadi 'complaint'
-    if (priority === 'high') {
-      await pool.query(`UPDATE units SET status='complaint', updated_at=NOW() WHERE id=$1`, [unit_id]);
-    }
-
-    res.json({ success: true, data: result.rows[0] });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// PATCH /api/complaints/:id/status — siklus status keluhan
-app.patch('/api/complaints/:id/status', async (req, res) => {
-  try {
-    const current = await pool.query('SELECT status FROM complaints WHERE id=$1', [req.params.id]);
-    if (current.rows.length === 0) return res.status(404).json({ success: false, error: 'Keluhan tidak ditemukan' });
-
-    const cycle = { pending: 'in-progress', 'in-progress': 'done', done: 'pending' };
-    const newStatus = cycle[current.rows[0].status];
-
-    const result = await pool.query(
-      'UPDATE complaints SET status=$1 WHERE id=$2 RETURNING *',
-      [newStatus, req.params.id]
-    );
-    res.json({ success: true, data: result.rows[0] });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// DELETE /api/complaints/:id — hapus keluhan
-app.delete('/api/complaints/:id', async (req, res) => {
-  try {
-    await pool.query('DELETE FROM complaints WHERE id=$1', [req.params.id]);
-    res.json({ success: true, message: 'Keluhan dihapus' });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// ======================
 // API: SETTINGS
 // ======================
 
@@ -193,7 +119,6 @@ app.put('/api/settings', async (req, res) => {
 app.get('/api/dashboard', async (req, res) => {
   try {
     const units     = await pool.query('SELECT * FROM units ORDER BY id');
-    const complaints = await pool.query(`SELECT c.*, u.tenant FROM complaints c LEFT JOIN units u ON c.unit_id=u.id ORDER BY c.created_at DESC`);
     const settings  = await pool.query('SELECT key, value FROM settings');
 
     const cfg = {};
@@ -208,16 +133,13 @@ app.get('/api/dashboard', async (req, res) => {
       data: {
         settings: cfg,
         units: u,
-        complaints: complaints.rows,
         summary: {
           total_units:    u.length,
           occupied:       occupied.length,
           vacant:         u.filter(x => x.status === 'vacant').length,
-          with_complaint: u.filter(x => x.status === 'complaint').length,
           paid_count:     occupied.filter(x => x.paid).length,
           unpaid_count:   occupied.filter(x => !x.paid).length,
-          total_income:   totalPaid,
-          active_complaints: complaints.rows.filter(c => c.status !== 'done').length
+          total_income:   totalPaid
         }
       }
     });

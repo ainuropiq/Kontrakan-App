@@ -93,28 +93,6 @@
     .wa-q{width:36px;height:36px;border-radius:50%;background:#E8FBF0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .wa-q:active{background:#C5F5DB}
     .wa-q svg{width:18px;height:18px}
-    /* COMPLAINT */
-    .comp-card{background:var(--card);border-radius:var(--rlg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--ss);border:1px solid var(--bdr);animation:fadeIn .25s ease both}
-    .comp-card.high{border-top:3px solid var(--r)}
-    .comp-card.medium{border-top:3px solid var(--a)}
-    .comp-card.low{border-top:3px solid var(--b)}
-    .comp-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-    .comp-unit{font-size:15px;font-weight:700}
-    .comp-date{font-size:11px;color:var(--tl)}
-    .comp-desc{font-size:13px;color:var(--tm);line-height:1.55;margin-bottom:12px;background:var(--bg);border-radius:var(--rsm);padding:10px;border-left:3px solid var(--bdr)}
-    .comp-foot{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--bdr);gap:8px}
-    .sp{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
-    .sp .sd{width:6px;height:6px;border-radius:50%}
-    .sp-p{background:var(--rl);color:var(--rd)}
-    .sp-p .sd{background:var(--r)}
-    .sp-i{background:var(--al);color:var(--ad)}
-    .sp-i .sd{background:var(--a)}
-    .sp-d{background:var(--pl);color:var(--pd)}
-    .sp-d .sd{background:var(--pm)}
-    .ca{display:flex;gap:6px}
-    .sb{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--rsm);font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--bg);color:var(--t);font-family:var(--font)}
-    .sb.wa-btn{background:#E8FBF0;color:#0A5F38;border-color:rgba(37,211,102,.25)}
-    .sb:active{transform:scale(.97)}
     /* REPORT */
     .rep-sum{background:var(--p);border-radius:var(--rlg);padding:20px;color:#fff;margin-bottom:14px}
     .rep-sum .rv{font-size:30px;font-weight:700;margin:4px 0 2px;letter-spacing:-.5px}
@@ -212,12 +190,12 @@
   <div class="stat-strip">
     <div class="stat-chip" onclick="filterUnits('occupied')"><div class="val" id="s-occ">–</div><div class="lbl"><span class="dot" style="background:#5DCAA5"></span>Terisi</div></div>
     <div class="stat-chip" onclick="filterUnits('vacant')"><div class="val" id="s-vac">–</div><div class="lbl"><span class="dot" style="background:#FAC775"></span>Kosong</div></div>
-    <div class="stat-chip" onclick="switchTab('complaint')"><div class="val" id="s-comp">–</div><div class="lbl"><span class="dot" style="background:#F09595"></span>Keluhan</div></div>
+
   </div>
   <div class="nav-tabs">
     <button class="nav-tab active" id="tab-unit" onclick="switchTab('unit')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Unit</button>
     <button class="nav-tab" id="tab-payment" onclick="switchTab('payment')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Bayar</button>
-    <button class="nav-tab" id="tab-complaint" onclick="switchTab('complaint')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Keluhan<span class="bdot" id="cdot" style="display:none"></span></button>
+
     <button class="nav-tab" id="tab-report" onclick="switchTab('report')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Laporan</button>
     <button class="nav-tab" id="tab-contacts" onclick="switchTab('contacts')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Kontak</button>
   </div>
@@ -240,17 +218,7 @@
       <div class="sec-title">Status Pembayaran</div>
       <div id="payment-list"><div class="loading"><div class="spinner"></div></div></div>
     </div>
-    <div class="page" id="page-complaint">
-      <div class="filter-chips" id="comp-fc">
-        <button class="fc active" onclick="filterComplaints('all',this)">Semua</button>
-        <button class="fc" onclick="filterComplaints('pending',this)">Menunggu</button>
-        <button class="fc" onclick="filterComplaints('in-progress',this)">Diproses</button>
-        <button class="fc" onclick="filterComplaints('done',this)">Selesai</button>
-        <button class="fc" onclick="filterComplaints('high',this)">Prioritas Tinggi</button>
-      </div>
-      <div id="comp-list"><div class="loading"><div class="spinner"></div></div></div>
-      <div id="comp-empty" class="empty" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p>Tidak ada keluhan aktif!</p></div>
-    </div>
+
     <div class="page" id="page-report">
       <div id="rep-content"><div class="loading"><div class="spinner"></div><span>Memuat laporan...</span></div></div>
     </div>
@@ -294,30 +262,15 @@
   </div>
 </div>
 
-<!-- MODAL COMPLAINT -->
-<div class="modal-overlay" id="m-comp" onclick="closeModal('m-comp')">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Catat Keluhan Baru</div>
-    <div class="form-body">
-      <div class="form-group"><label class="form-label">Pilih Unit</label><select class="fs" id="f-cunit"></select></div>
-      <div class="form-group"><label class="form-label">Deskripsi Keluhan</label><textarea class="ft" id="f-cdesc" placeholder="Jelaskan kerusakan atau masalah..."></textarea></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Prioritas</label><select class="fs" id="f-cpri"><option value="high">🔴 Tinggi</option><option value="medium" selected>🟡 Sedang</option><option value="low">🔵 Rendah</option></select></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="fs" id="f-cst"><option value="pending">Menunggu</option><option value="in-progress">Diproses</option><option value="done">Selesai</option></select></div>
-      </div>
-      <button class="btn-primary" onclick="saveComplaint()">⚠️ Simpan Keluhan</button>
-    </div>
-  </div>
-</div>
+
 
 <div class="toast" id="toast-el"></div>
 
 <script>
 // ============ STATE ============
 const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-let appData = { units:[], complaints:[], settings:{} };
-let unitFilter = 'all', compFilter = 'all', currentTab = 'unit';
+let appData = { units:[], settings:{} };
+let unitFilter = 'all', currentTab = 'unit';
 
 // ============ API ============
 const API = {
@@ -332,10 +285,9 @@ async function loadAll(){
     const res = await API.get('/api/dashboard');
     if(res.success){
       appData.units      = res.data.units;
-      appData.complaints = res.data.complaints;
       appData.settings   = res.data.settings;
       updateStats(res.data.summary);
-      renderUnits(); renderPayments(); renderComplaints(); renderReport(); renderContacts();
+      renderUnits(); renderPayments(); renderReport(); renderContacts();
     }
   } catch(e){ toast('Gagal memuat data: '+e.message) }
 }
@@ -356,12 +308,10 @@ function openWA(wa,msg){ if(!wa){toast('No. WA tidak tersedia');return} window.o
 
 // ============ STATS ============
 function updateStats(s){
-  if(!s){ const u=appData.units; const occ=u.filter(x=>x.status!=='vacant'); s={occupied:occ.length,vacant:u.filter(x=>x.status==='vacant').length,active_complaints:appData.complaints.filter(c=>c.status!=='done').length} }
+  if(!s){ const u=appData.units; s={occupied:u.filter(x=>x.status!=='vacant').length,vacant:u.filter(x=>x.status==='vacant').length} }
   document.getElementById('s-occ').textContent = s.occupied||0;
   document.getElementById('s-vac').textContent = s.vacant||0;
-  document.getElementById('s-comp').textContent = s.active_complaints||0;
   document.getElementById('topbar-sub').textContent = (appData.settings.property_name||'Kontrakan')+' · '+appData.units.length+' Unit';
-  document.getElementById('cdot').style.display = s.active_complaints>0?'block':'none';
 }
 
 // ============ UNITS ============
@@ -375,7 +325,6 @@ function renderUnits(){
   let list=appData.units;
   if(unitFilter==='occupied')list=list.filter(u=>u.status==='occupied');
   else if(unitFilter==='vacant')list=list.filter(u=>u.status==='vacant');
-  else if(unitFilter==='complaint')list=list.filter(u=>u.status==='complaint');
   else if(unitFilter==='unpaid')list=list.filter(u=>u.status!=='vacant'&&!u.paid);
   const ow=appData.settings.owner_name||'Pemilik';
   document.getElementById('unit-list').innerHTML = list.length===0?'<div class="empty"><p>Tidak ada unit yang sesuai filter</p></div>':list.map((u,i)=>{
@@ -403,11 +352,9 @@ async function openUnitDet(id){
   document.getElementById('det-title').textContent='Unit '+u.id;
   document.getElementById('det-sub').textContent=u.tenant||'Unit Kosong';
   const ow=appData.settings.owner_name||'Pemilik';
-  const comps=appData.complaints.filter(c=>c.unit_id==id);
-  const sL=u.status==='occupied'?'Terisi':u.status==='vacant'?'Kosong':'Ada Keluhan';
+  const sL=u.status==='occupied'?'Terisi':u.status==='vacant'?'Kosong':'Status Lain';
   const waH=u.tenant?`Halo ${u.tenant}, ada yang bisa saya bantu? — ${ow}`:'';
   const waT=u.tenant?`Halo ${u.tenant}, ini pengingat pembayaran sewa Unit ${u.id} sebesar ${fmtRp(u.rent)} bulan ini. Mohon segera dibayarkan ya. Terima kasih 🙏 — ${ow}`:'';
-  const waK=u.tenant?`Halo ${u.tenant}, terkait keluhan Anda, kami akan segera menindaklanjuti. Terima kasih 🙏 — ${ow}`:'';
   document.getElementById('det-body').innerHTML=`
     ${u.tenant?`<button class="wa-big" onclick="openWA('${u.wa}','${waH.replace(/'/g,"\\'")}');toast('Membuka WhatsApp...')">${WA_SVG} Chat WhatsApp — ${u.tenant}</button>`:''}
     <div class="det-sec">
@@ -420,13 +367,11 @@ async function openUnitDet(id){
       <div class="det-row"><span class="dl">Tarif/Bulan</span><span class="dv">${fmtRp(u.rent)}</span></div>
       <div class="det-row"><span class="dl">Status Bayar</span><span class="dv" style="color:${u.paid?'var(--p)':'var(--a)'}">${u.status==='vacant'?'—':u.paid?'✅ Lunas':'⏳ Menunggak'}</span></div>
     </div>
-    ${comps.length>0?`<div class="det-sec" style="border-left:3px solid var(--r)"><div class="det-sec-t" style="color:var(--r)">⚠️ Keluhan Aktif (${comps.length})</div>${comps.map(c=>`<div style="padding:8px 0;border-bottom:1px solid var(--bdr)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">${c.description}</div><div style="font-size:11px;color:var(--tl)">${c.date} · ${c.category}</div></div>`).join('')}</div>`:''}
     ${u.tenant?`
     <div class="act-row">
       <button class="act-btn" onclick="togglePaid(${u.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>${u.paid?'Tandai Menunggak':'Tandai Lunas'}</button>
       <button class="act-btn" style="color:var(--wd)" onclick="openWA('${u.wa}','${waT.replace(/'/g,"\\'")}');toast('Pesan tagihan siap...')">${WA_SVG} Tagih WA</button>
     </div>
-    ${comps.length>0?`<button class="act-btn" style="width:100%;margin-bottom:10px" onclick="openWA('${u.wa}','${waK.replace(/'/g,"\\'")}');toast('Membuka WhatsApp...')">${WA_SVG} Balas Keluhan via WA</button>`:''}
     <button class="act-btn" style="width:100%;margin-bottom:10px" onclick="editUnit(${u.id});closeDet('unit-det')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Data Unit</button>`:`
     <button class="act-btn" onclick="addForSlot(${u.id});closeDet('unit-det')" style="width:100%;background:var(--pl);color:var(--pd);border-color:var(--pl)">+ Tambah Penyewa Baru</button>`}`;
   openDet('unit-det');
@@ -463,48 +408,12 @@ function renderPayments(){
   }).join('');
 }
 
-// ============ COMPLAINTS ============
-function filterComplaints(f,el){
-  compFilter=f;
-  document.querySelectorAll('#comp-fc .fc').forEach(b=>b.classList.remove('active'));
-  if(el)el.classList.add('active');
-  renderComplaints();
-}
-function renderComplaints(){
-  let list=appData.complaints;
-  if(compFilter==='pending')list=list.filter(c=>c.status==='pending');
-  else if(compFilter==='in-progress')list=list.filter(c=>c.status==='in-progress');
-  else if(compFilter==='done')list=list.filter(c=>c.status==='done');
-  else if(compFilter==='high')list=list.filter(c=>c.priority==='high');
-  const el=document.getElementById('comp-list');
-  document.getElementById('comp-empty').style.display=list.length===0?'block':'none';
-  const ow=appData.settings.owner_name||'Pemilik';
-  const sMap={pending:{cls:'sp-p',lbl:'Menunggu'},'in-progress':{cls:'sp-i',lbl:'Diproses'},done:{cls:'sp-d',lbl:'Selesai'}};
-  el.innerHTML=list.map((c,i)=>{
-    const s=sMap[c.status]||sMap.pending;
-    const pL=c.priority==='high'?'Prioritas Tinggi':c.priority==='medium'?'Prioritas Sedang':'Prioritas Rendah';
-    const pC=c.priority==='high'?'br':c.priority==='medium'?'ba':'bb';
-    const waMsg=c.wa?`Halo ${c.tenant}, terkait keluhan "${c.description}" — kami segera menangani. Terima kasih 🙏 — ${ow}`:'';
-    return`<div class="comp-card ${c.priority}" style="animation-delay:${i*.05}s">
-      <div class="comp-hdr"><div><div class="comp-unit">🚪 Unit ${c.unit_id}${c.tenant?' — '+c.tenant:''}</div><div class="comp-date">${c.date} · ${c.category}</div></div><span class="badge ${pC}">${pL}</span></div>
-      <div class="comp-desc">${c.description}</div>
-      <div class="comp-foot"><span class="sp ${s.cls}"><span class="sd"></span>${s.lbl}</span><div class="ca">${c.wa?`<button class="sb wa-btn" onclick="openWA('${c.wa}','${waMsg.replace(/'/g,"\\'")}');toast('Membuka WA...')">${WA_SVG} WA</button>`:''}<button class="sb" onclick="cycleStatus(${c.id})">Ubah Status</button></div></div>
-    </div>`;
-  }).join('');
-}
-async function cycleStatus(id){
-  const res=await API.patch('/api/complaints/'+id+'/status');
-  if(res.success){ const c=appData.complaints.find(x=>x.id==id); if(c)c.status=res.data.status; renderComplaints();updateStats();renderReport();toast({pending:'⏳ Menunggu','in-progress':'🔧 Diproses',done:'✅ Selesai'}[res.data.status]) }
-}
-
 // ============ REPORT ============
 function renderReport(){
   const u=appData.units; const occ=u.filter(x=>x.status!=='vacant');
   const paid=occ.filter(x=>x.paid).length; const vac=u.filter(x=>x.status==='vacant').length;
   const totalPaid=occ.filter(x=>x.paid).reduce((s,x)=>s+x.rent,0);
-  const activeC=appData.complaints.filter(c=>c.status!=='done').length;
   const pct=u.length>0?Math.round(occ.length/u.length*100):0;
-  const cats={};appData.complaints.forEach(c=>{cats[c.category]=(cats[c.category]||0)+1});
   const ow=appData.settings.owner_name||'Pemilik'; const owa=appData.settings.owner_wa||'';
   const now=new Date();
   document.getElementById('rep-content').innerHTML=`
@@ -516,7 +425,6 @@ function renderReport(){
         <div class="rep-mini"><div class="rmv">${paid}</div><div class="rml">Unit Lunas</div></div>
         <div class="rep-mini"><div class="rmv">${occ.length-paid}</div><div class="rml">Menunggak</div></div>
         <div class="rep-mini"><div class="rmv">${vac}</div><div class="rml">Unit Kosong</div></div>
-        <div class="rep-mini"><div class="rmv">${activeC}</div><div class="rml">Keluhan Aktif</div></div>
       </div>
     </div>
     <div class="rep-card">
@@ -525,12 +433,8 @@ function renderReport(){
       <div class="bt"><div class="bv" style="background:var(--pm);width:${pct}%"></div></div>
     </div>
     <div class="rep-card">
-      <div class="rep-card-title">Keluhan per Kategori</div>
-      ${Object.entries(cats).length>0?Object.entries(cats).map(([k,v])=>`<div class="rep-row"><span style="color:var(--tm)">${k}</span><span style="font-weight:600">${v} keluhan</span></div>`).join(''):'<div style="font-size:13px;color:var(--tl);text-align:center;padding:10px">Belum ada keluhan</div>'}
-    </div>
-    <div class="rep-card">
       <div class="rep-card-title">Ringkasan Semua Unit</div>
-      ${u.map(x=>`<div class="det-row"><span style="color:var(--tm)">Unit ${x.id}${x.tenant?' — '+x.tenant.split(' ')[0]:''}</span><span class="badge ${x.status==='occupied'?'bg':x.status==='vacant'?'ba':'br'}" style="font-size:9px">${x.status==='occupied'?'Terisi':x.status==='vacant'?'Kosong':'Keluhan'}</span></div>`).join('')}
+      ${u.map(x=>`<div class="det-row"><span style="color:var(--tm)">Unit ${x.id}${x.tenant?' — '+x.tenant.split(' ')[0]:''}</span><span class="badge ${x.status==='occupied'?'bg':x.status==='vacant'?'ba':'br'}" style="font-size:9px">${x.status==='occupied'?'Terisi':x.status==='vacant'?'Kosong':'Lainnya'}</span></div>`).join('')}
     </div>
     <button class="wa-share" onclick="shareReport()">${WA_SVG} Kirim Laporan via WhatsApp</button>`;
 }
@@ -578,7 +482,7 @@ function switchTab(tab){
 function openSearch(){switchTab('contacts');setTimeout(()=>document.getElementById('contact-search').focus(),300)}
 
 // ============ FORMS ============
-function openFab(){ currentTab==='complaint'?openAddComp():openAddUnit() }
+function openFab(){ openAddUnit() }
 
 function openAddUnit(){
   document.getElementById('f-uid').value='';document.getElementById('m-unit-title').textContent='Tambah Penyewa';
@@ -602,22 +506,6 @@ async function saveUnit(){
   const body={status:document.getElementById('f-ust').value,tenant:document.getElementById('f-tn').value.trim()||null,wa:document.getElementById('f-wa').value.trim().replace(/\D/g,'')||null,since:document.getElementById('f-since').value||null,rent:parseInt(document.getElementById('f-rent').value)||1500000,paid:document.getElementById('f-paid').value==='true'};
   const res=await API.put('/api/units/'+no,body);
   if(res.success){const u=getUnit(no);if(u)Object.assign(u,res.data);closeModal('m-unit');updateStats();renderUnits();renderPayments();renderReport();renderContacts();toast('Unit '+no+' berhasil disimpan ✅')}
-  else toast('Error: '+res.error);
-}
-
-function openAddComp(){
-  const occ=appData.units.filter(u=>u.status!=='vacant');
-  if(!occ.length){toast('Belum ada unit terisi');return}
-  document.getElementById('f-cunit').innerHTML=occ.map(u=>`<option value="${u.id}">Unit ${u.id} — ${u.tenant}</option>`).join('');
-  document.getElementById('f-cdesc').value='';document.getElementById('f-cpri').value='medium';document.getElementById('f-cst').value='pending';
-  openModal('m-comp');
-}
-async function saveComplaint(){
-  const desc=document.getElementById('f-cdesc').value.trim();
-  if(!desc){toast('⚠️ Isi deskripsi keluhan dahulu');return}
-  const body={unit_id:parseInt(document.getElementById('f-cunit').value),priority:document.getElementById('f-cpri').value,status:document.getElementById('f-cst').value,description:desc};
-  const res=await API.post('/api/complaints',body);
-  if(res.success){closeModal('m-comp');await loadAll();toast('Keluhan berhasil dicatat ✅')}
   else toast('Error: '+res.error);
 }
 

@@ -15,18 +15,6 @@ CREATE TABLE IF NOT EXISTS units (
   updated_at  TIMESTAMP DEFAULT NOW()
 );
 
--- Tabel Keluhan / Complaints
-CREATE TABLE IF NOT EXISTS complaints (
-  id          SERIAL PRIMARY KEY,
-  unit_id     INTEGER NOT NULL REFERENCES units(id),
-  priority    VARCHAR(10) NOT NULL DEFAULT 'medium',
-  status      VARCHAR(20) NOT NULL DEFAULT 'pending',
-  description TEXT NOT NULL,
-  category    VARCHAR(50) DEFAULT 'Lainnya',
-  date        DATE NOT NULL DEFAULT CURRENT_DATE,
-  created_at  TIMESTAMP DEFAULT NOW()
-);
-
 -- Tabel Pengaturan Pemilik
 CREATE TABLE IF NOT EXISTS settings (
   key   VARCHAR(50) PRIMARY KEY,
@@ -46,11 +34,6 @@ INSERT INTO units (id, status, tenant, wa, since, rent, paid) VALUES
   (9, 'vacant',   NULL,              NULL,            NULL,      1000000, false)
 ON CONFLICT (id) DO NOTHING;
 
--- ── Data Awal: Keluhan ──
-INSERT INTO complaints (unit_id, priority, status, description, category, date) VALUES
-  (NULL, 'medium', 'pending', '', 'Lainnya', CURRENT_DATE)
-ON CONFLICT DO NOTHING;
-
 -- ── Data Awal: Pengaturan ──
 INSERT INTO settings (key, value) VALUES
   ('owner_name',    'Ainu Rafiq'),
@@ -58,7 +41,3 @@ INSERT INTO settings (key, value) VALUES
   ('property_name', 'Kontrakan ID'),
   ('property_address', 'Kp.Asem RT.004 RW.005 Semanan, Kalideres')
 ON CONFLICT (key) DO NOTHING;
-
-DELETE FROM complaints
-WHERE unit_id IS NULL
-  AND description = '';
